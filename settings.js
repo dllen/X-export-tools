@@ -17,7 +17,7 @@ class TweetExportSettings {
       apiDelay: 1000,
       enableDebugMode: false
     };
-    this.currentUser = null;
+    this.currentUser = { name: 'Guest', username: 'guest', profile_image_url: 'icons/icon32.png' };
     this.init();
   }
 
@@ -35,9 +35,6 @@ class TweetExportSettings {
     // Reset settings
     document.getElementById('reset-settings').addEventListener('click', () => this.resetSettings());
     
-    // Login/logout
-    document.getElementById('login-btn').addEventListener('click', () => this.handleLogin());
-    document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
     
     // Real-time validation
     document.getElementById('max-tweets').addEventListener('input', (e) => {
@@ -164,125 +161,25 @@ class TweetExportSettings {
     }
   }
 
-  async checkAuthStatus() {
-    try {
-      const response = await chrome.runtime.sendMessage({ action: 'getAuthToken' });
-      if (response.token) {
-        await this.loadUserData();
-        this.updateUserDisplay();
-      }
-    } catch (error) {
-      console.error('Error checking auth status:', error);
-    }
-  }
+  async checkAuthStatus() { return; }
 
-  async loadUserData() {
-    try {
-      const response = await chrome.runtime.sendMessage({ action: 'getUserData' });
-      if (response.userData) {
-        this.currentUser = response.userData;
-      }
-    } catch (error) {
-      console.error('Error loading user data:', error);
-    }
-  }
+  async loadUserData() { return; }
 
   updateUserDisplay() {
-    const loginBtn = document.getElementById('login-btn');
-    const logoutBtn = document.getElementById('logout-btn');
     const userName = document.getElementById('user-name');
     const userHandle = document.getElementById('user-handle');
     const userAvatar = document.getElementById('user-avatar');
     
-    if (this.currentUser) {
-      userName.textContent = this.currentUser.name || 'Unknown User';
-      userHandle.textContent = this.currentUser.username ? `@${this.currentUser.username}` : '';
-      userAvatar.src = this.currentUser.profile_image_url || 'icons/icon32.png';
-      
-      loginBtn.disabled = true;
-      logoutBtn.disabled = false;
-    } else {
-      userName.textContent = 'Not logged in';
-      userHandle.textContent = 'Login to enable export features';
-      userAvatar.src = 'icons/icon32.png';
-      
-      loginBtn.disabled = false;
-      logoutBtn.disabled = true;
-    }
+    userName.textContent = this.currentUser.name;
+    userHandle.textContent = `@${this.currentUser.username}`;
+    userAvatar.src = this.currentUser.profile_image_url;
   }
 
-  async handleLogin() {
-    const loginBtn = document.getElementById('login-btn');
-    loginBtn.innerHTML = '<span class="loading"></span> Connecting...';
-    loginBtn.disabled = true;
-    
-    try {
-      // Open Twitter OAuth flow
-      const authUrl = 'https://twitter.com/oauth/authorize';
-      const result = await chrome.identity.launchWebAuthFlow({
-        url: authUrl,
-        interactive: true
-      });
-      
-      if (result) {
-        const url = new URL(result);
-        const token = url.searchParams.get('oauth_token');
-        
-        if (token) {
-          await chrome.runtime.sendMessage({ 
-            action: 'setAuthToken', 
-            token: token 
-          });
-          
-          // Fetch user data
-          await this.fetchTwitterUserData(token);
-          this.updateUserDisplay();
-          this.showNotification('Successfully logged in!', 'success');
-        }
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      this.showNotification('Login failed. Please try again.', 'error');
-    } finally {
-      loginBtn.innerHTML = 'Login with Twitter';
-      loginBtn.disabled = false;
-    }
-  }
+  async handleLogin() { return; }
 
-  async fetchTwitterUserData(token) {
-    try {
-      const response = await fetch('https://api.twitter.com/2/users/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        const userData = await response.json();
-        this.currentUser = userData.data;
-        
-        await chrome.runtime.sendMessage({ 
-          action: 'setUserData', 
-          userData: this.currentUser 
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  }
+  async fetchTwitterUserData() { return; }
 
-  async handleLogout() {
-    try {
-      await chrome.runtime.sendMessage({ action: 'setAuthToken', token: null });
-      await chrome.runtime.sendMessage({ action: 'setUserData', userData: null });
-      this.currentUser = null;
-      this.updateUserDisplay();
-      this.showNotification('Successfully logged out', 'success');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  }
+  async handleLogout() { return; }
 
   updateLastSaved() {
     chrome.storage.local.get('settingsLastSaved', (result) => {

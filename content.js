@@ -5,6 +5,10 @@ class TweetExportContent {
     this.tweets = new Map();
     this.isProcessing = false;
     this.observer = null;
+    this.scanQueue = [];
+    this.scanTimer = null;
+    this.processedTweetIds = new Set();
+    this.imageHoverTs = new WeakMap();
     this.init();
   }
 
@@ -12,20 +16,21 @@ class TweetExportContent {
     console.log('TweetExport content script initialized');
     this.setupTweetObserver();
     this.bindMessageListener();
+    this.setupMouseoverThrottling();
     this.scanExistingTweets();
   }
 
   // Setup mutation observer to detect new tweets
   setupTweetObserver() {
     this.observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
           if (node.nodeType === Node.ELEMENT_NODE) {
-            const tweets = this.extractTweetsFromElement(node);
-            tweets.forEach(tweet => this.processTweet(tweet));
+            this.scanQueue.push(node);
           }
-        });
-      });
+        }
+      }
+      this.scheduleScan();
     });
 
     this.observer.observe(document.body, {
@@ -34,28 +39,60 @@ class TweetExportContent {
     });
   }
 
+  scheduleScan() {
+    if (this.scanTimer) return;
+    this.scanTimer = setTimeout(() => {
+      this.processScanQueue();
+    }, 200);
+  }
+
+  processScanQueue() {
+    const nodes = this.scanQueue.splice(0);
+    this.scanTimer = null;
+    const selector = 'article[data-testid="tweet"], [data-testid="tweet"]';
+    for (const node of nodes) {
+      const list = node.matches(selector) ? [node] : node.querySelectorAll(selector);
+      for (const el of list) {
+        this.processTweet(el);
+      }
+    }
+    if (this.scanQueue.length > 0) this.scheduleScan();
+  }
+
+  setupMouseoverThrottling() {
+    const thresholds = { mouseover: 200, mouseenter: 200, mousemove: 75 };
+    const handler = (type) => (e) => {
+      const path = typeof e.composedPath === 'function' ? e.composedPath() : [e.target];
+      let img = null;
+      for (const node of path) {
+        if (node && node.nodeType === 1) {
+          const el = node;
+          if (el.tagName === 'IMG') { img = el; break; }
+          const found = el.querySelector && el.querySelector('img');
+          if (found) { img = found; break; }
+        }
+      }
+      if (!img) return;
+      const container = img.closest('article[data-testid="tweet"], [data-testid="tweet"]');
+      if (!container) return;
+      const last = this.imageHoverTs.get(img) || 0;
+      const now = Date.now();
+      if (now - last < thresholds[type]) {
+        e.stopImmediatePropagation();
+        return;
+      }
+      this.imageHoverTs.set(img, now);
+    };
+    document.addEventListener('mouseover', handler('mouseover'), true);
+    document.addEventListener('mouseenter', handler('mouseenter'), true);
+    document.addEventListener('mousemove', handler('mousemove'), true);
+  }
+
   // Extract tweets from DOM element
   extractTweetsFromElement(element) {
-    const tweets = [];
-    
-    // Look for tweet containers using various selectors
-    const tweetSelectors = [
-      '[data-testid="tweet"]',
-      '[data-testid="tweetText"]',
-      'article[data-testid="tweet"]',
-      'div[data-testid="tweet"]'
-    ];
-
-    tweetSelectors.forEach(selector => {
-      const elements = element.querySelectorAll(selector);
-      elements.forEach(tweetElement => {
-        if (!tweets.includes(tweetElement)) {
-          tweets.push(tweetElement);
-        }
-      });
-    });
-
-    return tweets;
+    const selector = 'article[data-testid="tweet"], [data-testid="tweet"]';
+    if (element.matches(selector)) return [element];
+    return Array.from(element.querySelectorAll(selector));
   }
 
   // Process individual tweet element
@@ -64,8 +101,9 @@ class TweetExportContent {
     
     try {
       const tweetData = this.extractTweetData(tweetElement);
-      if (tweetData && tweetData.id) {
+      if (tweetData && tweetData.id && !this.processedTweetIds.has(tweetData.id)) {
         this.tweets.set(tweetData.id, tweetData);
+        this.processedTweetIds.add(tweetData.id);
         this.addExportButton(tweetElement, tweetData);
       }
     } catch (error) {
@@ -367,34 +405,49 @@ class TweetExportContent {
 
   // Export single tweet
   async exportSingleTweet(tweetData) {
+    this.pauseObserving();
     try {
-      // Send tweet data to background script for export
+      if (!chrome?.runtime?.id) {
+        const fallback = await this.downloadTweetsLocally([tweetData]);
+        if (fallback) {
+          this.showNotification('Tweet exported locally');
+          return;
+        }
+      }
       const response = await chrome.runtime.sendMessage({
         action: 'exportTweets',
         tweets: [tweetData]
       });
 
-      if (response.success) {
-        this.showNotification(`Tweet exported successfully!`);
+      if (response && response.success) {
+        this.showNotification('Tweet exported successfully!');
       } else {
-        throw new Error(response.error);
+        throw new Error(response?.error || 'Export failed');
       }
     } catch (error) {
-      console.error('Export error:', error);
-      this.showNotification('Export failed. Please try again.', 'error');
+      try {
+        const fallback = await this.downloadTweetsLocally([tweetData]);
+        if (fallback) {
+          this.showNotification('Tweet exported locally');
+          return;
+        }
+        throw error;
+      } catch (err) {
+        console.error('Export error:', err);
+        this.showNotification('Export failed. Please try again.', 'error');
+      }
+    } finally {
+      this.resumeObserving();
     }
   }
 
   // Scan existing tweets on page load
   scanExistingTweets() {
     this.isProcessing = true;
-    
-    setTimeout(() => {
-      const tweets = this.extractTweetsFromElement(document.body);
-      tweets.forEach(tweet => this.processTweet(tweet));
-      this.isProcessing = false;
-      console.log(`Processed ${this.tweets.size} tweets`);
-    }, 1000);
+    const selector = 'article[data-testid="tweet"], [data-testid="tweet"]';
+    const tweets = document.querySelectorAll(selector);
+    tweets.forEach(tweet => this.processTweet(tweet));
+    this.isProcessing = false;
   }
 
   // Bind message listener for communication with popup/background
@@ -418,6 +471,49 @@ class TweetExportContent {
           break;
       }
     });
+  }
+
+  pauseObserving() {
+    try {
+      if (this.observer) this.observer.disconnect();
+      this.scanQueue = [];
+      if (this.scanTimer) {
+        clearTimeout(this.scanTimer);
+        this.scanTimer = null;
+      }
+    } catch {}
+  }
+
+  resumeObserving() {
+    try {
+      if (this.observer) {
+        this.observer.observe(document.body, { childList: true, subtree: true });
+      }
+    } catch {}
+  }
+
+  async downloadTweetsLocally(tweets) {
+    try {
+      const exportData = {
+        exportDate: new Date().toISOString(),
+        tweetCount: tweets.length,
+        tweets: tweets
+      };
+      const json = JSON.stringify(exportData, null, 2);
+      const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
+      const filename = `tweets_export_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      return { filename, tweetCount: tweets.length };
+    } catch (e) {
+      console.error('Local download fallback failed:', e);
+      return null;
+    }
   }
 
   // Handle fetch tweets request from popup
@@ -511,6 +607,7 @@ class TweetExportContent {
       }, 300);
     }, 3000);
   }
+
 }
 
 // Initialize content script when DOM is ready

@@ -293,18 +293,14 @@
         tweets: tweets
       };
       
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-        type: 'application/json'
-      });
-      
-      const url = URL.createObjectURL(blob);
+      const json = JSON.stringify(exportData, null, 2);
+      const dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = dataUrl;
       a.download = `tweets_export_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
       
       this.showNotification(`Exported ${tweets.length} tweets successfully!`);
     },

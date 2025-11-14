@@ -9,15 +9,13 @@ class TweetExportPopup {
 
   init() {
     this.bindEvents();
-    this.checkAuthStatus();
+    this.currentUser = { name: 'Guest', username: 'guest', profile_image_url: 'icons/icon32.png' };
     this.setupDateDefaults();
+    this.updateUserDisplay();
+    this.showUserSection();
   }
 
   bindEvents() {
-    // Login/logout events
-    document.getElementById('login-btn').addEventListener('click', () => this.handleLogin());
-    document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
-    
     // Export events
     document.getElementById('export-btn').addEventListener('click', () => this.handleExport());
     document.getElementById('cancel-export').addEventListener('click', () => this.handleCancelExport());
@@ -43,32 +41,9 @@ class TweetExportPopup {
     document.getElementById('date-to').value = today.toISOString().split('T')[0];
   }
 
-  async checkAuthStatus() {
-    try {
-      const response = await chrome.runtime.sendMessage({ action: 'getAuthToken' });
-      if (response.token) {
-        await this.loadUserData();
-        this.showUserSection();
-      } else {
-        this.showLoginSection();
-      }
-    } catch (error) {
-      console.error('Error checking auth status:', error);
-      this.showLoginSection();
-    }
-  }
+  async checkAuthStatus() { return; }
 
-  async loadUserData() {
-    try {
-      const response = await chrome.runtime.sendMessage({ action: 'getUserData' });
-      if (response.userData) {
-        this.currentUser = response.userData;
-        this.updateUserDisplay();
-      }
-    } catch (error) {
-      console.error('Error loading user data:', error);
-    }
-  }
+  async loadUserData() { return; }
 
   updateUserDisplay() {
     if (this.currentUser) {
@@ -78,84 +53,11 @@ class TweetExportPopup {
     }
   }
 
-  async handleLogin() {
-    const loginBtn = document.getElementById('login-btn');
-    loginBtn.innerHTML = '<span class="loading"></span> Connecting...';
-    loginBtn.disabled = true;
+  async handleLogin() { return; }
 
-    try {
-      // Request Twitter authentication
-      const authUrl = 'https://twitter.com/oauth/authorize';
-      
-      // Open authentication window
-      const result = await chrome.identity.launchWebAuthFlow({
-        url: authUrl,
-        interactive: true
-      });
+  async fetchTwitterUserData() { return; }
 
-      if (result) {
-        // Extract token from redirect URL
-        const url = new URL(result);
-        const token = url.searchParams.get('oauth_token');
-        
-        if (token) {
-          // Store auth token
-          await chrome.runtime.sendMessage({ 
-            action: 'setAuthToken', 
-            token: token 
-          });
-          
-          // Fetch user data
-          await this.fetchTwitterUserData(token);
-          this.showUserSection();
-        }
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      this.showError('Login failed. Please try again.');
-    } finally {
-      loginBtn.innerHTML = '<img src="icons/twitter-icon.svg" alt="Twitter" class="btn-icon"> Login with Twitter';
-      loginBtn.disabled = false;
-    }
-  }
-
-  async fetchTwitterUserData(token) {
-    try {
-      // Fetch user data from Twitter API
-      const response = await fetch('https://api.twitter.com/2/users/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        this.currentUser = userData.data;
-        
-        // Store user data
-        await chrome.runtime.sendMessage({ 
-          action: 'setUserData', 
-          userData: this.currentUser 
-        });
-        
-        this.updateUserDisplay();
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  }
-
-  async handleLogout() {
-    try {
-      await chrome.runtime.sendMessage({ action: 'setAuthToken', token: null });
-      await chrome.runtime.sendMessage({ action: 'setUserData', userData: null });
-      this.currentUser = null;
-      this.showLoginSection();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  }
+  async handleLogout() { return; }
 
   async handleExport() {
     if (this.isExporting) return;
@@ -244,10 +146,7 @@ class TweetExportPopup {
   }
 
   // UI State Management
-  showLoginSection() {
-    this.hideAllSections();
-    document.getElementById('login-section').classList.remove('hidden');
-  }
+  showLoginSection() { return; }
 
   showUserSection() {
     this.hideAllSections();

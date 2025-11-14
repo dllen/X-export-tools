@@ -14,7 +14,6 @@ A powerful Chrome extension that allows you to export your Twitter(X) tweets and
 - **Bulk Selection**: Select multiple tweets for batch export
 - **Real-time Updates**: Automatically detect new tweets on the page
 - **Customizable Export**: Configure filename patterns and export options
-- **User Authentication**: Secure Twitter OAuth integration
 
 ### 🎨 User Experience
 - **Intuitive Interface**: Clean, modern design with easy navigation
@@ -41,9 +40,8 @@ A powerful Chrome extension that allows you to export your Twitter(X) tweets and
 ## Usage
 
 ### Quick Start
-1. **Login**: Click the extension icon and authenticate with Twitter
-2. **Navigate**: Go to any Twitter profile or timeline
-3. **Export**: Click the export button on individual tweets or use bulk selection
+1. **Navigate**: Go to any Twitter profile or timeline
+2. **Export**: Click the export button on individual tweets or use bulk selection
 
 ### Individual Tweet Export
 1. Hover over any tweet on Twitter
@@ -135,7 +133,6 @@ ID,Text,Author,Username,Date,Replies,Retweets,Likes,URL
 
 - **Local Processing**: All tweet extraction happens locally in your browser
 - **No Data Collection**: We don't collect or store your personal data
-- **Secure Authentication**: Uses Twitter's official OAuth flow
 - **Minimal Permissions**: Only requests necessary permissions
 
 ## Troubleshooting
@@ -147,16 +144,11 @@ ID,Text,Author,Username,Date,Replies,Retweets,Likes,URL
 2. Check if the extension is enabled in `chrome://extensions/`
 3. Try refreshing the page
 
-#### Login Issues
-1. Clear your browser cookies for twitter.com
-2. Disable other Twitter extensions temporarily
-3. Check if third-party cookies are blocked
 
 #### Export Failures
 1. Check your internet connection
-2. Ensure you're logged into Twitter
-3. Try reducing the number of tweets to export
-4. Enable debug mode for detailed error messages
+2. Try reducing the number of tweets to export
+3. Enable debug mode for detailed error messages
 
 #### Missing Export Buttons
 1. Check if "Show export buttons" is enabled in settings
@@ -220,7 +212,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Bulk selection mode
 - Multiple export formats
 - Settings page
-- User authentication
 
 ## Disclaimer
 
