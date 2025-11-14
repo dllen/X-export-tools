@@ -82,6 +82,16 @@ class TweetExportPopup {
       
       // Fetch tweets from current page
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      try {
+        const { tweetExportSettings } = await chrome.storage.local.get('tweetExportSettings');
+        const maxTweets = tweetExportSettings?.maxTweets || 300;
+        const username = this.parseProfileUsername(tab.url);
+        if (username) {
+          options.profileUsername = username;
+          options.autoScroll = true;
+          options.maxTweets = maxTweets;
+        }
+      } catch {}
       const response = await chrome.tabs.sendMessage(tab.id, {
         action: 'fetchTweets',
         options: options
@@ -101,6 +111,20 @@ class TweetExportPopup {
       this.isExporting = false;
       exportBtn.innerHTML = '<span class="btn-text">Export Tweets</span><span class="btn-icon">📤</span>';
       exportBtn.disabled = false;
+    }
+  }
+
+  parseProfileUsername(url) {
+    try {
+      const u = new URL(url);
+      const parts = u.pathname.split('/').filter(Boolean);
+      const first = parts[0] || '';
+      const reserved = new Set(['home','explore','notifications','messages','i','settings','compose','search','help','tos','privacy','hashtag','topic','lists']);
+      if (!first || reserved.has(first)) return null;
+      if (first === 'status') return null;
+      return first;
+    } catch {
+      return null;
     }
   }
 

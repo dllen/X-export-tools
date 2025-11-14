@@ -518,9 +518,17 @@ class TweetExportContent {
 
   // Handle fetch tweets request from popup
   async handleFetchTweets(options) {
-    const allTweets = Array.from(this.tweets.values());
+    if (options && options.autoScroll) {
+      const limit = Number(options.maxTweets) || 300;
+      await this.collectTweetsWithScroll(limit);
+    }
+    let allTweets = Array.from(this.tweets.values());
     
     // Filter tweets based on options
+    if (options && options.profileUsername) {
+      const u = `@${options.profileUsername.toLowerCase()}`;
+      allTweets = allTweets.filter(t => t.author && t.author.username && t.author.username.toLowerCase() === u);
+    }
     let filteredTweets = allTweets.filter(tweet => {
       // Date range filtering
       if (options.dateFrom || options.dateTo) {
@@ -550,6 +558,19 @@ class TweetExportContent {
     }
     
     return await this.exportSingleTweet(tweet);
+  }
+
+  async collectTweetsWithScroll(maxTweets) {
+    let prev = this.tweets.size;
+    let idleRounds = 0;
+    const maxIdleRounds = 5;
+    while (this.tweets.size < maxTweets && idleRounds < maxIdleRounds) {
+      window.scrollBy(0, Math.max(window.innerHeight, 600));
+      await new Promise(r => setTimeout(r, 600));
+      const cur = this.tweets.size;
+      if (cur <= prev) idleRounds += 1; else idleRounds = 0;
+      prev = cur;
+    }
   }
 
   // Helper functions
