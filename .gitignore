@@ -1,0 +1,33 @@
+# Node.js
+node_modules/
+coverage/
+.cache/
+.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build output
+dist/
+*.zip
+tmp/
+*.tmp
+
+# Environment files
+.env
+.env.*
+.env.*.local
+
+# Editors/IDE
+.idea/
+.vscode/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Chrome extension packaging
+*.crx
+*.pem
