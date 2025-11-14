@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TweetExport Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="settings-container">
+    <header class="settings-header">
+      <img src="icons/icon32.png" alt="TweetExport" class="logo">
+      <h1>TweetExport Settings</h1>
+    </header>
+    
+    <main class="settings-content">
+      <!-- Export Settings -->
+      <section class="settings-section">
+        <h2>Export Settings</h2>
+        
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="include-media" checked>
+            <span class="checkmark"></span>
+            Include media files (images/videos)
+          </label>
+          <p class="setting-description">Download images and videos along with tweets</p>
+        </div>
+        
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="include-replies" checked>
+            <span class="checkmark"></span>
+            Include replies
+          </label>
+          <p class="setting-description">Export reply tweets in addition to original tweets</p>
+        </div>
+        
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="include-retweets">
+            <span class="checkmark"></span>
+            Include retweets
+          </label>
+          <p class="setting-description">Export retweets in addition to original tweets</p>
+        </div>
+        
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="include-metrics" checked>
+            <span class="checkmark"></span>
+            Include engagement metrics
+          </label>
+          <p class="setting-description">Export like, retweet, and reply counts</p>
+        </div>
+      </section>
+      
+      <!-- Format Settings -->
+      <section class="settings-section">
+        <h2>Export Format</h2>
+        
+        <div class="setting-group">
+          <label class="setting-label" for="export-format">Default format:</label>
+          <select id="export-format" class="setting-select">
+            <option value="json">JSON</option>
+            <option value="csv">CSV</option>
+            <option value="txt">Plain Text</option>
+          </select>
+          <p class="setting-description">Choose the default export format</p>
+        </div>
+        
+        <div class="setting-group">
+          <label class="setting-label" for="filename-pattern">Filename pattern:</label>
+          <input type="text" id="filename-pattern" value="tweets_{username}_{date}" class="setting-input">
+          <p class="setting-description">Use {username}, {date}, {time} placeholders</p>
+        </div>
+      </section>
+      
+      <!-- Display Settings -->
+      <section class="settings-section">
+        <h2>Display Settings</h2>
+        
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="show-export-buttons" checked>
+            <span class="checkmark"></span>
+            Show export buttons on tweets
+          </label>
+          <p class="setting-description">Display export buttons on individual tweets</p>
+        </div>
+        
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="enable-bulk-selection">
+            <span class="checkmark"></span>
+            Enable bulk selection mode
+          </label>
+          <p class="setting-description">Allow selecting multiple tweets for export</p>
+        </div>
+        
+        <div class="setting-group">
+          <label class="setting-label" for="button-position">Export button position:</label>
+          <select id="button-position" class="setting-select">
+            <option value="top-right">Top Right</option>
+            <option value="top-left">Top Left</option>
+            <option value="bottom-right">Bottom Right</option>
+            <option value="bottom-left">Bottom Left</option>
+          </select>
+        </div>
+      </section>
+      
+      <!-- Advanced Settings -->
+      <section class="settings-section">
+        <h2>Advanced Settings</h2>
+        
+        <div class="setting-group">
+          <label class="setting-label" for="max-tweets">Maximum tweets per export:</label>
+          <input type="number" id="max-tweets" value="1000" min="1" max="10000" class="setting-input">
+          <p class="setting-description">Limit the number of tweets in a single export</p>
+        </div>
+        
+        <div class="setting-group">
+          <label class="setting-label" for="api-delay">API request delay (ms):</label>
+          <input type="number" id="api-delay" value="1000" min="100" max="5000" class="setting-input">
+          <p class="setting-description">Delay between API requests to avoid rate limiting</p>
+        </div>
+        
+        <div class="setting-group">
+          <label class="setting-label">
+            <input type="checkbox" id="enable-debug-mode">
+            <span class="checkmark"></span>
+            Enable debug mode
+          </label>
+          <p class="setting-description">Show detailed logs and debugging information</p>
+        </div>
+      </section>
+      
+      <!-- Account Settings -->
+      <section class="settings-section">
+        <h2>Account Settings</h2>
+        
+        <div class="user-info">
+          <img id="user-avatar" src="icons/icon32.png" alt="Avatar" class="avatar">
+          <div class="user-details">
+            <h3 id="user-name">Not logged in</h3>
+            <p id="user-handle">Login to enable export features</p>
+          </div>
+        </div>
+        
+        <div class="setting-actions">
+          <button id="login-btn" class="btn btn-primary">Login with Twitter</button>
+          <button id="logout-btn" class="btn btn-secondary" disabled>Logout</button>
+        </div>
+      </section>
+    </main>
+    
+    <footer class="settings-footer">
+      <div class="settings-actions">
+        <button id="save-settings" class="btn btn-primary">Save Settings</button>
+        <button id="reset-settings" class="btn btn-secondary">Reset to Defaults</button>
+      </div>
+      <div class="settings-info">
+        <p>Version: <span id="extension-version">1.0.0</span></p>
+        <p>Last saved: <span id="last-saved">Never</span></p>
+      </div>
+    </footer>
+  </div>
+  
+  <script src="settings.js"></script>
+</body>
+</html>

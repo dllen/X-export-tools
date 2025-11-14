@@ -1,0 +1,44 @@
+{
+  "name": "tweetexport-chrome-extension",
+  "version": "1.0.0",
+  "description": "Export Twitter(X) tweets and multimedia content with ease",
+  "main": "background.js",
+  "scripts": {
+    "build": "node build.js",
+    "package": "npm run build && node package.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint *.js",
+    "format": "prettier --write *.js *.html *.css"
+  },
+  "keywords": [
+    "twitter",
+    "x",
+    "export",
+    "tweets",
+    "chrome-extension",
+    "social-media",
+    "backup",
+    "archive"
+  ],
+  "author": "TweetExport Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/tweetexport-chrome-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/tweetexport-chrome-extension/issues"
+  },
+  "homepage": "https://github.com/your-username/tweetexport-chrome-extension#readme",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "archiver": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "Chrome >= 88"
+  ]
+}

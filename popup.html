@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TweetExport</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <img src="icons/icon32.png" alt="TweetExport" class="logo">
+      <h1>TweetExport</h1>
+    </header>
+    
+    <main class="popup-content">
+      <!-- Login Section -->
+      <section id="login-section" class="section">
+        <h2>Login to Twitter</h2>
+        <p class="description">Connect your Twitter account to export tweets</p>
+        <button id="login-btn" class="btn btn-primary">
+          <img src="icons/twitter-icon.svg" alt="Twitter" class="btn-icon">
+          Login with Twitter
+        </button>
+      </section>
+      
+      <!-- User Info Section -->
+      <section id="user-section" class="section hidden">
+        <div class="user-info">
+          <img id="user-avatar" src="" alt="Avatar" class="avatar">
+          <div class="user-details">
+            <h3 id="user-name"></h3>
+            <p id="user-handle"></p>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn btn-secondary">Logout</button>
+      </section>
+      
+      <!-- Export Options -->
+      <section id="export-section" class="section hidden">
+        <h2>Export Options</h2>
+        
+        <div class="export-options">
+          <div class="option-group">
+            <label class="checkbox-container">
+              <input type="checkbox" id="export-media" checked>
+              <span class="checkmark"></span>
+              Include media (images/videos)
+            </label>
+          </div>
+          
+          <div class="option-group">
+            <label class="checkbox-container">
+              <input type="checkbox" id="export-replies" checked>
+              <span class="checkmark"></span>
+              Include replies
+            </label>
+          </div>
+          
+          <div class="option-group">
+            <label class="checkbox-container">
+              <input type="checkbox" id="export-retweets">
+              <span class="checkmark"></span>
+              Include retweets
+            </label>
+          </div>
+        </div>
+        
+        <div class="date-range">
+          <label for="date-from">From:</label>
+          <input type="date" id="date-from">
+          <label for="date-to">To:</label>
+          <input type="date" id="date-to">
+        </div>
+        
+        <button id="export-btn" class="btn btn-primary">
+          <span class="btn-text">Export Tweets</span>
+          <span class="btn-icon">📤</span>
+        </button>
+      </section>
+      
+      <!-- Progress Section -->
+      <section id="progress-section" class="section hidden">
+        <h2>Export Progress</h2>
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+          <p id="progress-text">Preparing export...</p>
+        </div>
+        <button id="cancel-export" class="btn btn-secondary">Cancel</button>
+      </section>
+      
+      <!-- Results Section -->
+      <section id="results-section" class="section hidden">
+        <h2>Export Complete</h2>
+        <div class="results-info">
+          <p id="export-summary"></p>
+          <div class="file-info">
+            <span class="file-icon">📄</span>
+            <span id="filename"></span>
+          </div>
+        </div>
+        <button id="new-export" class="btn btn-primary">New Export</button>
+      </section>
+    </main>
+    
+    <footer class="popup-footer">
+      <div class="footer-links">
+        <a href="#" id="settings-link">Settings</a>
+        <a href="#" id="help-link">Help</a>
+      </div>
+    </footer>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+/* Content script styles for TweetExport extension */
+
+/* Export button styles */
+.tweet-export-btn {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  background: rgba(29, 161, 242, 0.9) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 28px !important;
+  height: 28px !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  color: white !important;
+  z-index: 1000 !important;
+  opacity: 0.8 !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.tweet-export-btn:hover {
+  opacity: 1 !important;
+  transform: scale(1.1) !important;
+  background: rgba(29, 161, 242, 1) !important;
+  box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3) !important;
+}
+
+.tweet-export-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* Notification styles */
+.tweetexport-notification {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  background: #1da1f2 !important;
+  color: white !important;
+  padding: 12px 16px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  z-index: 10000 !important;
+  max-width: 300px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  animation: slideIn 0.3s ease !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.tweetexport-notification.error {
+  background: #e0245e !important;
+}
+
+/* Animation keyframes */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Highlight exported tweets */
+.tweet-exported {
+  position: relative !important;
+}
+
+.tweet-exported::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  border: 2px solid #1da1f2 !important;
+  border-radius: 12px !important;
+  pointer-events: none !important;
+  animation: highlight 2s ease-in-out !important;
+}
+
+@keyframes highlight {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* Bulk selection styles */
+.tweetexport-bulk-mode .tweet-export-btn {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+.tweetexport-selected {
+  background: rgba(29, 161, 242, 0.1) !important;
+  border-left: 3px solid #1da1f2 !important;
+}
+
+/* Bulk selection toolbar */
+.tweetexport-toolbar {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  color: white !important;
+  padding: 12px 20px !important;
+  border-radius: 25px !important;
+  z-index: 10001 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.tweetexport-toolbar button {
+  background: #1da1f2 !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 16px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.tweetexport-toolbar button:hover {
+  background: #0d8bd9 !important;
+  transform: translateY(-1px) !important;
+}
+
+.tweetexport-toolbar .count {
+  font-weight: 600 !important;
+  color: #1da1f2 !important;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .tweet-export-btn {
+    background: rgba(29, 161, 242, 0.95) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  }
+  
+  .tweetexport-notification {
+    background: rgba(29, 161, 242, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  .tweetexport-toolbar {
+    background: rgba(21, 32, 43, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tweet-export-btn {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 10px !important;
+    top: 4px !important;
+    right: 4px !important;
+  }
+  
+  .tweetexport-toolbar {
+    bottom: 10px !important;
+    padding: 10px 16px !important;
+    font-size: 12px !important;
+  }
+  
+  .tweetexport-notification {
+    top: 10px !important;
+    right: 10px !important;
+    left: 10px !important;
+    max-width: none !important;
+  }
+}
+
+/* Hide export buttons by default in non-bulk mode */
+.tweet-export-btn {
+  display: none !important;
+}
+
+/* Show export buttons on tweet hover */
+article:hover .tweet-export-btn,
+[data-testid="tweet"]:hover .tweet-export-btn,
+.tweet:hover .tweet-export-btn {
+  display: flex !important;
+}
