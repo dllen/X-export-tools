@@ -78,7 +78,6 @@ class TweetExportContent {
       const last = this.imageHoverTs.get(img) || 0;
       const now = Date.now();
       if (now - last < thresholds[type]) {
-        e.stopImmediatePropagation();
         return;
       }
       this.imageHoverTs.set(img, now);
@@ -405,6 +404,7 @@ class TweetExportContent {
 
   // Export single tweet
   async exportSingleTweet(tweetData) {
+    try { await this.expandAndRefreshTweetText(tweetData); } catch {}
     this.pauseObserving();
     try {
       if (!chrome?.runtime?.id) {
@@ -547,6 +547,11 @@ class TweetExportContent {
       return true;
     });
 
+    try {
+      for (const t of filteredTweets) {
+        await this.expandAndRefreshTweetText(t);
+      }
+    } catch {}
     return filteredTweets;
   }
 
@@ -570,6 +575,42 @@ class TweetExportContent {
       const cur = this.tweets.size;
       if (cur <= prev) idleRounds += 1; else idleRounds = 0;
       prev = cur;
+    }
+  }
+
+  async expandAndRefreshTweetText(tweetData) {
+    const el = this.findTweetElementById(tweetData.id);
+    if (!el) return;
+    await this.expandShowMore(el);
+    const newText = this.extractTweetText(el);
+    if (newText && newText.length > (tweetData.text || '').length) {
+      tweetData.text = newText;
+      this.tweets.set(tweetData.id, tweetData);
+    }
+  }
+
+  findTweetElementById(id) {
+    if (!id) return null;
+    const links = document.querySelectorAll(`a[href*="/status/${id}"]`);
+    for (const link of links) {
+      const el = link.closest('article[data-testid="tweet"], [data-testid="tweet"]');
+      if (el) return el;
+    }
+    return null;
+  }
+
+  async expandShowMore(tweetElement) {
+    let btn = tweetElement.querySelector('[data-testid="showMoreInline"], [data-testid="showMore"]');
+    if (!btn) {
+      const candidates = tweetElement.querySelectorAll('button, a');
+      for (const c of candidates) {
+        const t = (c.textContent || '').toLowerCase();
+        if (t.includes('show more') || t.includes('显示更多') || t.includes('更多')) { btn = c; break; }
+      }
+    }
+    if (btn && typeof btn.click === 'function') {
+      btn.click();
+      await new Promise(r => setTimeout(r, 120));
     }
   }
 
